@@ -1,3 +1,5 @@
 package ssconverter
 
-type Converter interface{}
+type Converter interface {
+	CheckCommand() bool
+}
