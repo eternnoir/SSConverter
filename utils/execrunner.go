@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"os/exec"
 )
 
@@ -20,6 +21,7 @@ func (runner *ExecRunner) Run() []byte {
 	runner.command.Dir = runner.dir
 	str, err := runner.command.Output()
 	if err != nil {
+		fmt.Print(err)
 		return []byte("")
 	}
 	return str
