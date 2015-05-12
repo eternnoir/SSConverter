@@ -37,28 +37,30 @@ func (converter *MkdocsConverter) CheckCommand() bool {
 	cmd := exec.Command("mkdocs")
 	runner := utils.CreateExecRunner(cmd, converter.sourcePath)
 	output := string(runner.Run())
-	return strings.Contains(output, "json")
+	return strings.Contains(output, "version")
 }
 
-// Buid site from source path. It will return command output.
-func (converter *MkdocsConverter) BuildSite() (output string, err error) {
+// Buid site from source path. If build success will return true,fail return false.
+func (converter *MkdocsConverter) BuildSite() (result bool, err error) {
 	if !converter.CheckCommand() {
 		converter.Logger.Println("Mkdocs package not found")
-		return "", errors.New("Mkdocs Not Found.")
+		return false, errors.New("Mkdocs Not Found.")
 	}
 	pathExist, err := utils.CheckPathExist(converter.sourcePath)
 	if err != nil {
-		return "", err
+		return false, err
 	}
 	if !pathExist {
 		converter.Logger.Println("Mkdocs site path error.")
-		return "", errors.New("Mkdocs site path error.")
+		return false, errors.New("Mkdocs site path error.")
 	}
 	cmd := exec.Command("mkdocs", "build", "--clean")
 	runner := utils.CreateExecRunner(cmd, converter.sourcePath)
-	output = string(runner.Run())
+	output := string(runner.Run())
 	converter.Logger.Println(output)
-	sitePath := filepath.Join(converter.sourcePath, "site")
-	converter.Logger.Println("Build site at:" + sitePath)
-	return output, nil
+	if !strings.Contains(output, "Building documentation to directory") {
+		return false, errors.New(output)
+	}
+	converter.Logger.Println("Build site at:" + filepath.Join(converter.sourcePath, "site"))
+	return true, nil
 }
