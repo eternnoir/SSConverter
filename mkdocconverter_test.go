@@ -1,7 +1,9 @@
 package ssconverter
 
 import (
+	"archive/zip"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -42,6 +44,33 @@ func TestBuild(t *testing.T) {
 	if !result {
 		t.Fail()
 	}
+}
+
+func TestGetZipByte(t *testing.T) {
+	createTestSite("./")
+	converter, err := CreateMkdocsConverter(filepath.Join("./", MKSITENAME))
+	if err != nil {
+		t.Error(err)
+		t.Fail()
+	}
+	buf, ziperr := converter.GetSiteBytes("zip")
+	if ziperr != nil {
+		t.Error(err)
+		t.Fail()
+	}
+	ioutil.WriteFile("./"+MKSITENAME+"/ttt1", buf.Bytes(), 0644)
+	r, oerr := zip.OpenReader("./" + MKSITENAME + "/ttt1")
+	if oerr != nil {
+		t.Error(err)
+		t.Fail()
+	}
+	defer r.Close()
+	fileNumber := len(r.File)
+	t.Log("Zip has " + string(fileNumber) + " files.")
+	if fileNumber < 1 {
+		t.Fail()
+	}
+
 }
 
 func createTestSite(path string) {
