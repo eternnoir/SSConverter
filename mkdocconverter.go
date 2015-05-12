@@ -12,6 +12,7 @@ import (
 	"strings"
 )
 
+// Mkdocs's converter struct
 type MkdocsConverter struct {
 	sourcePath string
 	Logger     *log.Logger
@@ -35,6 +36,7 @@ func CreateMkdocsConverter(sourcePath string) (converter *MkdocsConverter, err e
 	return ret, nil
 }
 
+// If mkdocs command can found will return true.
 func (converter *MkdocsConverter) CheckCommand() bool {
 	cmd := exec.Command("mkdocs")
 	runner := utils.CreateExecRunner(cmd, converter.sourcePath)
@@ -67,6 +69,7 @@ func (converter *MkdocsConverter) BuildSite() (result bool, err error) {
 	return true, nil
 }
 
+// Get generated site archive bytes buffer. archiveType can be only "zip" now.
 func (converter *MkdocsConverter) GetSiteBytes(archiveType string) (buffer *bytes.Buffer, err error) {
 	converter.BuildSite()
 	buf := new(bytes.Buffer)
