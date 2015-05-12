@@ -1,7 +1,9 @@
 package ssconverter
 
 import (
+	"bytes"
 	"errors"
+	"github.com/eternnoir/archiveutil"
 	"github.com/eternnoir/ssconverter/utils"
 	"log"
 	"os"
@@ -63,4 +65,21 @@ func (converter *MkdocsConverter) BuildSite() (result bool, err error) {
 	}
 	converter.Logger.Println("Build site at:" + filepath.Join(converter.sourcePath, "site"))
 	return true, nil
+}
+
+func (converter *MkdocsConverter) GetSiteBytes(archiveType string) (buffer *bytes.Buffer, err error) {
+	converter.BuildSite()
+	buf := new(bytes.Buffer)
+	z := archiveutil.CreateArchive(archiveType, buf)
+	err = z.AddFolder(filepath.Join(converter.sourcePath, "site"))
+	if err != nil {
+		converter.Logger.Println(err)
+		return nil, err
+	}
+	err = z.Close()
+	if err != nil {
+		converter.Logger.Println(err)
+		return nil, err
+	}
+	return buf, err
 }
